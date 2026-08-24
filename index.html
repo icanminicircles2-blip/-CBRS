@@ -1,20 +1,11 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>Hello, World!</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-      <h1 class="title">Hello World!</h1>
-      <p id="currentTime"></p>
-      <script src="script.js"></script>
-  </body>
-</html><!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>استبيان CBRS لتقييم الطفل</title>
+  <!-- SheetJS library for Excel export -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
   <style>
     /* Reset and base */
     * {
@@ -29,16 +20,17 @@
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
       padding: 20px;
     }
     .container {
-      max-width: 800px;
+      max-width: 850px;
       width: 100%;
       background: #ffffff;
       border-radius: 28px;
       box-shadow: 0 20px 40px rgba(0,0,0,0.08);
       padding: 30px 25px;
+      margin-top: 10px;
       transition: 0.3s;
     }
     h1 {
@@ -57,11 +49,58 @@
       border-bottom: 1px solid #e9edf2;
       padding-bottom: 15px;
     }
+
+    /* Child data form */
+    .child-form {
+      background: #f8fafc;
+      border-radius: 20px;
+      padding: 20px 20px 15px;
+      margin-bottom: 25px;
+      border: 1px solid #e2e8f0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px 25px;
+    }
+    .child-form .full-width {
+      grid-column: span 2;
+    }
+    .child-form label {
+      font-weight: 600;
+      font-size: 14px;
+      color: #334155;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .child-form input, .child-form select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      font-size: 14px;
+      background: white;
+      transition: 0.2s;
+    }
+    .child-form input:focus, .child-form select:focus {
+      border-color: #2563eb;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+    }
+    .child-form .age-display {
+      background: #e2e8f0;
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-weight: 600;
+      color: #0b3b5c;
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 15px;
+    }
+
     .progress-section {
       display: flex;
       align-items: center;
       gap: 15px;
-      margin-bottom: 30px;
+      margin-bottom: 25px;
     }
     .progress-bar-bg {
       flex: 1;
@@ -81,7 +120,7 @@
       font-size: 15px;
       font-weight: 600;
       color: #334155;
-      min-width: 60px;
+      min-width: 80px;
       text-align: left;
     }
 
@@ -122,7 +161,7 @@
     }
     .option-item {
       flex: 1 0 auto;
-      min-width: 55px;
+      min-width: 60px;
       text-align: center;
     }
     .option-item input[type="radio"] {
@@ -146,6 +185,11 @@
       background: #eff6ff;
       color: #1e4c8c;
       box-shadow: 0 4px 8px rgba(37,99,235,0.15);
+    }
+    .option-item input[type="radio"]:checked + label.deferred-label {
+      border-color: #f59e0b;
+      background: #fffbeb;
+      color: #b45309;
     }
     .option-item label:hover {
       background: #f1f5f9;
@@ -207,6 +251,13 @@
     }
     .btn-success:hover {
       background: #16a34a;
+    }
+    .btn-warning {
+      background: #f59e0b;
+      color: white;
+    }
+    .btn-warning:hover {
+      background: #d97706;
     }
 
     .results-section {
@@ -271,11 +322,46 @@
       margin-top: 25px;
     }
 
+    /* Error / Pending message */
+    .pending-message {
+      background: #fef2f2;
+      border: 2px solid #fca5a5;
+      border-radius: 16px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+      color: #991b1b;
+      font-weight: 500;
+    }
+    .pending-message strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    .pending-message .q-list {
+      font-size: 16px;
+      background: white;
+      padding: 10px;
+      border-radius: 10px;
+      display: inline-block;
+      margin-top: 6px;
+      color: #1e293b;
+      border: 1px solid #fca5a5;
+    }
+
     .hidden {
       display: none;
     }
 
     /* responsive */
+    @media (max-width: 700px) {
+      .child-form {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+      .child-form .full-width {
+        grid-column: span 1;
+      }
+    }
     @media (max-width: 600px) {
       .container { padding: 18px 15px; }
       .options-grid { gap: 4px; }
@@ -291,8 +377,40 @@
 </head>
 <body>
 <div class="container" id="app">
-  <h1>📋 استبيان تقييم الطفل (CBCL)</h1>
-  <div class="subhead">أجب عن كل عبارة بتقدير من 1 (كثير جداً) إلى 6 (لا يحدث مطلقاً)</div>
+  <h1>📋 استبيان تقييم الطفل (CBRS)</h1>
+  <div class="subhead">أجب عن كل عبارة بتقدير من 1 (كثير جداً) إلى 6 (لا يحدث مطلقاً) أو اختر "تأجيل"</div>
+
+  <!-- Child Data Form -->
+  <div class="child-form" id="childForm">
+    <div>
+      <label for="childName">👤 الاسم</label>
+      <input type="text" id="childName" placeholder="اسم الطفل">
+    </div>
+    <div>
+      <label for="childGender">⚥ النوع</label>
+      <select id="childGender">
+        <option value="">اختر</option>
+        <option value="ذكر">ذكر</option>
+        <option value="أنثى">أنثى</option>
+      </select>
+    </div>
+    <div>
+      <label for="childBirth">🎂 تاريخ الميلاد</label>
+      <input type="date" id="childBirth">
+    </div>
+    <div>
+      <label for="childAge">📅 العمر الزمني</label>
+      <span class="age-display" id="childAge">-- سنة</span>
+    </div>
+    <div>
+      <label for="childSchool">🏫 المدرسة</label>
+      <input type="text" id="childSchool" placeholder="اسم المدرسة">
+    </div>
+    <div>
+      <label for="childGrade">📚 الصف</label>
+      <input type="text" id="childGrade" placeholder="مثال: 3 ابتدائي">
+    </div>
+  </div>
 
   <!-- Progress -->
   <div class="progress-section">
@@ -300,6 +418,13 @@
       <div class="progress-fill" id="progressFill"></div>
     </div>
     <span class="progress-text" id="progressText">0 / 78</span>
+  </div>
+
+  <!-- Pending Error Message -->
+  <div id="pendingMessage" class="pending-message hidden">
+    <strong>⚠️ لا يمكن إنهاء الاختبار</strong>
+    <span id="pendingText">هناك أسئلة مؤجلة أو غير مجاب عنها.</span>
+    <div class="q-list" id="pendingList"></div>
   </div>
 
   <!-- Question area -->
@@ -329,6 +454,7 @@
     <div class="total-score" id="totalScore"></div>
     <div class="btn-group">
       <button class="btn btn-secondary" id="backToQuestionsBtn">🔙 العودة للأسئلة</button>
+      <button class="btn btn-success" id="exportExcelBtn">📊 تصدير إلى إكسل</button>
       <button class="btn btn-danger" id="resetResultsBtn">🗑️ إعادة تعيين</button>
     </div>
   </div>
@@ -340,7 +466,6 @@
     // DATA: 78 questions with section and text
     // ----------------------------------------------
     const questions = [
-      // التوافق الشخصي (1-20)
       { id: 'q1', section: 'شخصي', text: 'يفضل أن يكون وحيداً' },
       { id: 'q2', section: 'شخصي', text: 'يبدو غير سعيد أو مكتئب' },
       { id: 'q3', section: 'شخصي', text: 'يصرخ لسبب تافه أو بدون سبب' },
@@ -361,7 +486,6 @@
       { id: 'q18', section: 'شخصي', text: 'غير مهذب أو لبق مع الآخرين' },
       { id: 'q19', section: 'شخصي', text: 'يعمل أشياء تستدعي الأسف أو الاعتذار بعد عملها' },
       { id: 'q20', section: 'شخصي', text: 'يتقلب سلوكه بين السلوك المقبول وغير المقبول' },
-      // التوافق الاسري (21-40)
       { id: 'q21', section: 'أسري', text: 'يعبر عن كراهيته الشديدة للمنزل والأسرة' },
       { id: 'q22', section: 'أسري', text: 'يتحدث عن الهرب من المنزل' },
       { id: 'q23', section: 'أسري', text: 'يخاف من أبويه حين يرتكب خطأً' },
@@ -382,7 +506,6 @@
       { id: 'q38', section: 'أسري', text: 'تعيش الأسرة في شقة واحدة مع أسر أخرى' },
       { id: 'q39', section: 'أسري', text: 'تعيش الأسرة مع جيران مختلفين (في العادات - التدين - الخ)' },
       { id: 'q40', section: 'أسري', text: 'يمارس الآباء الشعائر الدينية (صلاة - صوم - …)' },
-      // التوافق الاجتماعي (41-60)
       { id: 'q41', section: 'اجتماعي', text: 'عدواني يحمل مشاعر عدائية نحو الآخرين' },
       { id: 'q42', section: 'اجتماعي', text: 'يدخل في عراك (خناق) بدني مع الآخرين' },
       { id: 'q43', section: 'اجتماعي', text: 'رديء في اللعب مع الآخرين ولا يتقبل الهزيمة بروح رياضية' },
@@ -403,7 +526,6 @@
       { id: 'q58', section: 'اجتماعي', text: 'مستمع غير جيد أثناء المناقشات مع الآخرين' },
       { id: 'q59', section: 'اجتماعي', text: 'غير صريح ولا يعتمد عليه كثيراً' },
       { id: 'q60', section: 'اجتماعي', text: 'يذهب إلى المسجد أو الكنيسة' },
-      // التوافق المدرسي (61-72)
       { id: 'q61', section: 'مدرسي', text: 'يعبر عن كراهيته الشديدة للمدرسة' },
       { id: 'q62', section: 'مدرسي', text: 'يبدو مبلّداً وغير مرتاح أثناء وجوده في المدرسة' },
       { id: 'q63', section: 'مدرسي', text: 'يعاني من صعوبة في التعبير عن نفسه بالكلمات' },
@@ -416,7 +538,6 @@
       { id: 'q70', section: 'مدرسي', text: 'يدفع الوالدان الطفل إلى أداء واجب المدرسة بطريقة تضايقه' },
       { id: 'q71', section: 'مدرسي', text: 'يبذل جهداً كبيراً أو مستمراً في الواجبات المدرسية' },
       { id: 'q72', section: 'مدرسي', text: 'يختلف مستواه الدراسي – ارتفاعاً وانخفاضاً – من يوم إلى يوم' },
-      // التوافق الجسمي (73-78)
       { id: 'q73', section: 'جسمي', text: 'صحته معتلة بوجه عام' },
       { id: 'q74', section: 'جسمي', text: 'سيطرته ضئيلة على عضلاته وتناسقه الحركي رديء' },
       { id: 'q75', section: 'جسمي', text: 'أسنانه غير نظيفة ومظهره غير منظم (مهمل)' },
@@ -427,8 +548,16 @@
 
     const totalQuestions = questions.length;
     let currentIndex = 0;
-    // responses: object { q1: 1..6, q2: ... }
+    // responses: object { q1: 1..6 or null (deferred) }
     let responses = {};
+    // Child data
+    let childData = {
+      name: '',
+      gender: '',
+      birth: '',
+      school: '',
+      grade: ''
+    };
 
     // DOM refs
     const qNumberEl = document.getElementById('qNumber');
@@ -446,13 +575,61 @@
     const totalScoreEl = document.getElementById('totalScore');
     const backToQuestionsBtn = document.getElementById('backToQuestionsBtn');
     const resetResultsBtn = document.getElementById('resetResultsBtn');
+    const exportExcelBtn = document.getElementById('exportExcelBtn');
+    const pendingMessage = document.getElementById('pendingMessage');
+    const pendingText = document.getElementById('pendingText');
+    const pendingList = document.getElementById('pendingList');
 
-    // ---------- helper functions ----------
+    // Child form refs
+    const childName = document.getElementById('childName');
+    const childGender = document.getElementById('childGender');
+    const childBirth = document.getElementById('childBirth');
+    const childAge = document.getElementById('childAge');
+    const childSchool = document.getElementById('childSchool');
+    const childGrade = document.getElementById('childGrade');
+
+    // ---------- Age calculation ----------
+    function calculateAge(birthDateStr) {
+      if (!birthDateStr) return '-- سنة';
+      const birth = new Date(birthDateStr);
+      const today = new Date();
+      let years = today.getFullYear() - birth.getFullYear();
+      let months = today.getMonth() - birth.getMonth();
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+      if (years < 0) return '-- سنة';
+      if (years === 0 && months === 0) return 'أقل من شهر';
+      let result = '';
+      if (years > 0) result += years + ' سنة';
+      if (months > 0) result += (result ? ' و ' : '') + months + ' شهر';
+      return result;
+    }
+
+    function updateAgeDisplay() {
+      const val = childBirth.value;
+      childAge.textContent = calculateAge(val);
+    }
+
+    // ---------- Storage ----------
     function loadFromStorage() {
-      const stored = localStorage.getItem('cbcResponses');
+      const stored = localStorage.getItem('cbrsFullData');
       if (stored) {
         try {
-          responses = JSON.parse(stored);
+          const data = JSON.parse(stored);
+          if (data.child) {
+            childData = data.child;
+            childName.value = childData.name || '';
+            childGender.value = childData.gender || '';
+            childBirth.value = childData.birth || '';
+            childSchool.value = childData.school || '';
+            childGrade.value = childData.grade || '';
+            updateAgeDisplay();
+          }
+          if (data.responses) {
+            responses = data.responses;
+          }
           // ensure all question ids exist, default to undefined
           questions.forEach(q => {
             if (!(q.id in responses)) {
@@ -461,30 +638,60 @@
           });
         } catch (e) {
           responses = {};
+          questions.forEach(q => { responses[q.id] = undefined; });
         }
       } else {
-        // initialize
         questions.forEach(q => { responses[q.id] = undefined; });
       }
     }
 
     function saveToStorage() {
-      localStorage.setItem('cbcResponses', JSON.stringify(responses));
+      // gather child data
+      childData.name = childName.value;
+      childData.gender = childGender.value;
+      childData.birth = childBirth.value;
+      childData.school = childSchool.value;
+      childData.grade = childGrade.value;
+      const fullData = { child: childData, responses: responses };
+      localStorage.setItem('cbrsFullData', JSON.stringify(fullData));
     }
 
-    function getCurrentQuestion() {
-      return questions[currentIndex];
+    // ---------- Helpers for pending ----------
+    function getPendingQuestions() {
+      const pending = [];
+      questions.forEach((q, index) => {
+        const val = responses[q.id];
+        if (val === undefined || val === null) {
+          pending.push(index + 1);
+        }
+      });
+      return pending;
     }
 
+    function hasPendingQuestions() {
+      return getPendingQuestions().length > 0;
+    }
+
+    function goToFirstPending() {
+      const pending = getPendingQuestions();
+      if (pending.length > 0) {
+        currentIndex = pending[0] - 1;
+        renderQuestion();
+        return true;
+      }
+      return false;
+    }
+
+    // ---------- Render ----------
     function renderQuestion() {
       const q = getCurrentQuestion();
       qNumberEl.textContent = `السؤال ${currentIndex+1}`;
       qSectionEl.textContent = `(${q.section})`;
       qTextEl.textContent = q.text;
 
-      // generate radio options
       let html = '';
       const labels = ['كثير جداً', 'كثير', 'قليل', 'نادر', 'نادر جداً', 'لا يحدث مطلقاً'];
+      // Options 1-6
       for (let i = 1; i <= 6; i++) {
         const checked = (responses[q.id] === i) ? 'checked' : '';
         html += `
@@ -494,21 +701,41 @@
           </div>
         `;
       }
+      // Option 7: Defer
+      const isDeferred = (responses[q.id] === null);
+      html += `
+        <div class="option-item">
+          <input type="radio" name="qOption" value="defer" id="${q.id}_defer" ${isDeferred ? 'checked' : ''}>
+          <label for="${q.id}_defer" class="deferred-label">⏳<br><span style="font-weight:400;font-size:11px;display:block;">تأجيل</span></label>
+        </div>
+      `;
       optionsContainer.innerHTML = html;
 
       // attach change event to save
       const radios = optionsContainer.querySelectorAll('input[type="radio"]');
       radios.forEach(radio => {
         radio.addEventListener('change', function(e) {
-          const val = parseInt(this.value, 10);
-          responses[q.id] = val;
+          const val = this.value;
+          if (val === 'defer') {
+            responses[q.id] = null; // deferred
+          } else {
+            responses[q.id] = parseInt(val, 10);
+          }
           saveToStorage();
           updateProgress();
+          // Hide pending message when user answers
+          pendingMessage.classList.add('hidden');
         });
       });
 
       updateProgress();
       updateNavButtons();
+      // Hide any previous pending message on navigation
+      pendingMessage.classList.add('hidden');
+    }
+
+    function getCurrentQuestion() {
+      return questions[currentIndex];
     }
 
     function updateProgress() {
@@ -539,10 +766,9 @@
     }
 
     function goToNext() {
-      // save current value if any (already saved via change)
-      // if last question, show results
+      // If last question, validate before showing results
       if (currentIndex === totalQuestions - 1) {
-        showResults();
+        validateAndShowResults();
         return;
       }
       if (currentIndex < totalQuestions - 1) {
@@ -551,27 +777,42 @@
       }
     }
 
+    // ---------- Validation before results ----------
+    function validateAndShowResults() {
+      const pending = getPendingQuestions();
+      if (pending.length > 0) {
+        // Show error message
+        pendingMessage.classList.remove('hidden');
+        pendingText.textContent = `لا يمكن إنهاء الاختبار. هناك ${pending.length} سؤال(أسئلة) مؤجلة أو غير مجاب عنها:`;
+        pendingList.textContent = pending.join('، ');
+        // Go to first pending
+        goToFirstPending();
+        return;
+      }
+      // All answered, show results
+      showResults();
+    }
+
     // ---------- Results ----------
     function showResults() {
-      // check if all answered? we can show anyway
       questionArea.style.display = 'none';
       resultsArea.classList.add('active');
+      pendingMessage.classList.add('hidden');
       renderResults();
     }
 
     function renderResults() {
       const sections = ['شخصي', 'أسري', 'اجتماعي', 'مدرسي', 'جسمي'];
       const sectionMap = {};
-      sections.forEach(s => { sectionMap[s] = { sum: 0, count: 0, items: [] }; });
+      sections.forEach(s => { sectionMap[s] = { sum: 0, count: 0 }; });
 
       questions.forEach(q => {
         const val = responses[q.id];
-        if (val !== undefined && val !== null) {
+        if (val !== undefined && val !== null && typeof val === 'number') {
           const sec = q.section;
           if (sectionMap[sec]) {
             sectionMap[sec].sum += val;
             sectionMap[sec].count++;
-            sectionMap[sec].items.push(val);
           }
         }
       });
@@ -587,12 +828,10 @@
         grandTotal += data.sum;
         grandCount += data.count;
 
-        // bar percentage: since 1 is worst, 6 is best, we show bar as (avg / 6)*100 but we want low avg to show red.
-        // We'll display avg value, and a bar from 0 to 6.
         const barPercent = (avg / 6) * 100;
-        let barColor = '#22c55e'; // green (good)
-        if (avg < 2.5) barColor = '#ef4444'; // red (problem)
-        else if (avg < 4) barColor = '#f59e0b'; // yellow
+        let barColor = '#22c55e';
+        if (avg < 2.5) barColor = '#ef4444';
+        else if (avg < 4) barColor = '#f59e0b';
 
         html += `
           <div class="result-card">
@@ -622,10 +861,68 @@
       renderQuestion();
     }
 
+    // ---------- Export to Excel ----------
+    function exportToExcel() {
+      // Gather child data
+      const name = childName.value || 'غير محدد';
+      const gender = childGender.value || 'غير محدد';
+      const birth = childBirth.value || 'غير محدد';
+      const age = childAge.textContent || 'غير محدد';
+      const school = childSchool.value || 'غير محدد';
+      const grade = childGrade.value || 'غير محدد';
+
+      // Build data rows
+      const rows = [];
+      // Header: Child Info
+      rows.push(['بيانات الطفل']);
+      rows.push(['الاسم', name]);
+      rows.push(['النوع', gender]);
+      rows.push(['تاريخ الميلاد', birth]);
+      rows.push(['العمر الزمني', age]);
+      rows.push(['المدرسة', school]);
+      rows.push(['الصف', grade]);
+      rows.push([]); // empty row
+
+      // Questions header
+      rows.push(['رقم السؤال', 'القسم', 'نص السؤال', 'التقييم (1-6 أو تأجيل)']);
+
+      questions.forEach((q, idx) => {
+        const val = responses[q.id];
+        let displayVal = 'غير مجاب';
+        if (val === null) displayVal = '⏳ تأجيل';
+        else if (typeof val === 'number') displayVal = val.toString();
+        rows.push([idx+1, q.section, q.text, displayVal]);
+      });
+
+      // Create workbook
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      XLSX.utils.book_append_sheet(wb, ws, 'تقييم الطفل');
+      
+      // Auto column width (simple)
+      ws['!cols'] = [
+        { wch: 15 }, // رقم
+        { wch: 15 }, // قسم
+        { wch: 50 }, // نص
+        { wch: 20 }  // تقييم
+      ];
+
+      // Generate file
+      const fileName = `تقييم_الطفل_${new Date().toISOString().slice(0,10)}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+    }
+
     // ---------- Reset ----------
     function resetAll() {
-      if (confirm('هل أنت متأكد من مسح جميع الإجابات؟')) {
+      if (confirm('هل أنت متأكد من مسح جميع الإجابات وبيانات الطفل؟')) {
         questions.forEach(q => { responses[q.id] = undefined; });
+        childData = { name: '', gender: '', birth: '', school: '', grade: '' };
+        childName.value = '';
+        childGender.value = '';
+        childBirth.value = '';
+        childSchool.value = '';
+        childGrade.value = '';
+        updateAgeDisplay();
         saveToStorage();
         currentIndex = 0;
         if (resultsArea.classList.contains('active')) {
@@ -634,30 +931,41 @@
           renderQuestion();
         }
         updateProgress();
+        pendingMessage.classList.add('hidden');
       }
     }
 
     // ---------- Init ----------
     function init() {
       loadFromStorage();
-      // ensure all keys exist
+      // Update age on birth change
+      childBirth.addEventListener('change', function() {
+        updateAgeDisplay();
+        saveToStorage();
+      });
+      // Save child data on change
+      [childName, childGender, childSchool, childGrade].forEach(el => {
+        el.addEventListener('change', saveToStorage);
+        el.addEventListener('input', saveToStorage);
+      });
+
+      // Ensure all keys exist
       questions.forEach(q => {
         if (!(q.id in responses)) responses[q.id] = undefined;
       });
       saveToStorage();
 
-      // if all questions answered, maybe show results? but we start with questions.
-      // check if any unanswered, if all answered we can optionally show results but we keep questions.
-      // We'll just start at index 0.
+      // If all questions already answered, we start at 0 anyway.
       currentIndex = 0;
       renderQuestion();
 
-      // event listeners
+      // Event listeners
       prevBtn.addEventListener('click', goToPrev);
       nextBtn.addEventListener('click', goToNext);
       resetBtn.addEventListener('click', resetAll);
       backToQuestionsBtn.addEventListener('click', hideResults);
       resetResultsBtn.addEventListener('click', resetAll);
+      exportExcelBtn.addEventListener('click', exportToExcel);
     }
 
     init();
