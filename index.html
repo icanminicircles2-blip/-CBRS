@@ -4,10 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>استبيان CBRS لتقييم الطفل</title>
-  <!-- SheetJS library for Excel export -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
   <style>
-    /* Reset and base */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -31,7 +29,6 @@
       box-shadow: 0 20px 40px rgba(0,0,0,0.08);
       padding: 30px 25px;
       margin-top: 10px;
-      transition: 0.3s;
     }
     h1 {
       font-size: 24px;
@@ -39,7 +36,6 @@
       color: #0b3b5c;
       text-align: center;
       margin-bottom: 8px;
-      letter-spacing: -0.3px;
     }
     .subhead {
       text-align: center;
@@ -49,8 +45,6 @@
       border-bottom: 1px solid #e9edf2;
       padding-bottom: 15px;
     }
-
-    /* Child data form */
     .child-form {
       background: #f8fafc;
       border-radius: 20px;
@@ -95,7 +89,6 @@
       margin-top: 6px;
       font-size: 15px;
     }
-
     .progress-section {
       display: flex;
       align-items: center;
@@ -123,7 +116,29 @@
       min-width: 80px;
       text-align: left;
     }
-
+    .message-box {
+      background: #fef2f2;
+      border: 2px solid #fca5a5;
+      border-radius: 16px;
+      padding: 12px 18px;
+      margin-bottom: 16px;
+      color: #991b1b;
+      font-weight: 500;
+      display: none;
+    }
+    .message-box.show {
+      display: block;
+    }
+    .message-box .q-list {
+      font-size: 15px;
+      background: white;
+      padding: 8px 14px;
+      border-radius: 10px;
+      display: inline-block;
+      margin-top: 4px;
+      border: 1px solid #fca5a5;
+      color: #1e293b;
+    }
     .question-card {
       background: #f8fafc;
       border-radius: 20px;
@@ -178,7 +193,6 @@
       color: #334155;
       cursor: pointer;
       transition: 0.2s;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
     }
     .option-item input[type="radio"]:checked + label {
       border-color: #2563eb;
@@ -195,7 +209,6 @@
       background: #f1f5f9;
       border-color: #94a3b8;
     }
-
     .nav-buttons {
       display: flex;
       justify-content: space-between;
@@ -259,7 +272,6 @@
     .btn-warning:hover {
       background: #d97706;
     }
-
     .results-section {
       display: none;
     }
@@ -321,46 +333,19 @@
       justify-content: center;
       margin-top: 25px;
     }
-
-    /* Error / Pending message */
-    .pending-message {
-      background: #fef2f2;
-      border: 2px solid #fca5a5;
-      border-radius: 16px;
-      padding: 18px 20px;
-      margin-bottom: 20px;
-      color: #991b1b;
-      font-weight: 500;
-    }
-    .pending-message strong {
-      display: block;
-      font-size: 18px;
-      margin-bottom: 8px;
-    }
-    .pending-message .q-list {
-      font-size: 16px;
-      background: white;
-      padding: 10px;
-      border-radius: 10px;
+    .review-badge {
+      background: #f59e0b;
+      color: white;
+      padding: 4px 14px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 600;
       display: inline-block;
-      margin-top: 6px;
-      color: #1e293b;
-      border: 1px solid #fca5a5;
+      margin-right: 10px;
     }
-
-    .hidden {
-      display: none;
-    }
-
-    /* responsive */
     @media (max-width: 700px) {
-      .child-form {
-        grid-template-columns: 1fr;
-        gap: 10px;
-      }
-      .child-form .full-width {
-        grid-column: span 1;
-      }
+      .child-form { grid-template-columns: 1fr; gap: 10px; }
+      .child-form .full-width { grid-column: span 1; }
     }
     @media (max-width: 600px) {
       .container { padding: 18px 15px; }
@@ -383,11 +368,11 @@
   <!-- Child Data Form -->
   <div class="child-form" id="childForm">
     <div>
-      <label for="childName">👤 الاسم</label>
+      <label for="childName">👤 الاسم *</label>
       <input type="text" id="childName" placeholder="اسم الطفل">
     </div>
     <div>
-      <label for="childGender">⚥ النوع</label>
+      <label for="childGender">⚥ النوع *</label>
       <select id="childGender">
         <option value="">اختر</option>
         <option value="ذكر">ذكر</option>
@@ -395,7 +380,7 @@
       </select>
     </div>
     <div>
-      <label for="childBirth">🎂 تاريخ الميلاد</label>
+      <label for="childBirth">🎂 تاريخ الميلاد *</label>
       <input type="date" id="childBirth">
     </div>
     <div>
@@ -403,11 +388,11 @@
       <span class="age-display" id="childAge">-- سنة</span>
     </div>
     <div>
-      <label for="childSchool">🏫 المدرسة</label>
+      <label for="childSchool">🏫 المدرسة *</label>
       <input type="text" id="childSchool" placeholder="اسم المدرسة">
     </div>
     <div>
-      <label for="childGrade">📚 الصف</label>
+      <label for="childGrade">📚 الصف *</label>
       <input type="text" id="childGrade" placeholder="مثال: 3 ابتدائي">
     </div>
   </div>
@@ -420,11 +405,10 @@
     <span class="progress-text" id="progressText">0 / 78</span>
   </div>
 
-  <!-- Pending Error Message -->
-  <div id="pendingMessage" class="pending-message hidden">
-    <strong>⚠️ لا يمكن إنهاء الاختبار</strong>
-    <span id="pendingText">هناك أسئلة مؤجلة أو غير مجاب عنها.</span>
-    <div class="q-list" id="pendingList"></div>
+  <!-- Message Box -->
+  <div id="messageBox" class="message-box">
+    <span id="messageText"></span>
+    <div class="q-list" id="messageList"></div>
   </div>
 
   <!-- Question area -->
@@ -433,6 +417,7 @@
       <div>
         <span class="q-number" id="qNumber">السؤال 1</span>
         <span class="q-section" id="qSection">(التوافق الشخصي)</span>
+        <span id="reviewBadge" class="review-badge hidden">⏳ مراجعة مؤجل</span>
       </div>
       <div class="q-text" id="qText">نص السؤال هنا</div>
       <div class="options-grid" id="optionsContainer">
@@ -462,9 +447,7 @@
 
 <script>
   (function() {
-    // ----------------------------------------------
-    // DATA: 78 questions with section and text
-    // ----------------------------------------------
+    // ---------- DATA ----------
     const questions = [
       { id: 'q1', section: 'شخصي', text: 'يفضل أن يكون وحيداً' },
       { id: 'q2', section: 'شخصي', text: 'يبدو غير سعيد أو مكتئب' },
@@ -545,19 +528,14 @@
       { id: 'q77', section: 'جسمي', text: 'توجد شواهد على معاناته من قصور في الإدراك عن طريق الحواس' },
       { id: 'q78', section: 'جسمي', text: 'بصره ضعيف أو سمعه ثقيل' }
     ];
-
     const totalQuestions = questions.length;
+
+    // ---------- STATE ----------
     let currentIndex = 0;
-    // responses: object { q1: 1..6 or null (deferred) }
     let responses = {};
-    // Child data
-    let childData = {
-      name: '',
-      gender: '',
-      birth: '',
-      school: '',
-      grade: ''
-    };
+    let childData = { name: '', gender: '', birth: '', school: '', grade: '' };
+    let reviewMode = false;
+    let pendingQueue = []; // array of indices (0-based) of deferred/unanswered questions
 
     // DOM refs
     const qNumberEl = document.getElementById('qNumber');
@@ -576,11 +554,12 @@
     const backToQuestionsBtn = document.getElementById('backToQuestionsBtn');
     const resetResultsBtn = document.getElementById('resetResultsBtn');
     const exportExcelBtn = document.getElementById('exportExcelBtn');
-    const pendingMessage = document.getElementById('pendingMessage');
-    const pendingText = document.getElementById('pendingText');
-    const pendingList = document.getElementById('pendingList');
+    const messageBox = document.getElementById('messageBox');
+    const messageText = document.getElementById('messageText');
+    const messageList = document.getElementById('messageList');
+    const reviewBadge = document.getElementById('reviewBadge');
 
-    // Child form refs
+    // Child form
     const childName = document.getElementById('childName');
     const childGender = document.getElementById('childGender');
     const childBirth = document.getElementById('childBirth');
@@ -588,17 +567,14 @@
     const childSchool = document.getElementById('childSchool');
     const childGrade = document.getElementById('childGrade');
 
-    // ---------- Age calculation ----------
+    // ---------- Age ----------
     function calculateAge(birthDateStr) {
       if (!birthDateStr) return '-- سنة';
       const birth = new Date(birthDateStr);
       const today = new Date();
       let years = today.getFullYear() - birth.getFullYear();
       let months = today.getMonth() - birth.getMonth();
-      if (months < 0) {
-        years--;
-        months += 12;
-      }
+      if (months < 0) { years--; months += 12; }
       if (years < 0) return '-- سنة';
       if (years === 0 && months === 0) return 'أقل من شهر';
       let result = '';
@@ -606,10 +582,8 @@
       if (months > 0) result += (result ? ' و ' : '') + months + ' شهر';
       return result;
     }
-
     function updateAgeDisplay() {
-      const val = childBirth.value;
-      childAge.textContent = calculateAge(val);
+      childAge.textContent = calculateAge(childBirth.value);
     }
 
     // ---------- Storage ----------
@@ -630,68 +604,67 @@
           if (data.responses) {
             responses = data.responses;
           }
-          // ensure all question ids exist, default to undefined
           questions.forEach(q => {
-            if (!(q.id in responses)) {
-              responses[q.id] = undefined;
-            }
+            if (!(q.id in responses)) responses[q.id] = undefined;
           });
         } catch (e) {
-          responses = {};
-          questions.forEach(q => { responses[q.id] = undefined; });
+          resetResponses();
         }
       } else {
-        questions.forEach(q => { responses[q.id] = undefined; });
+        resetResponses();
       }
     }
-
+    function resetResponses() {
+      responses = {};
+      questions.forEach(q => { responses[q.id] = undefined; });
+    }
     function saveToStorage() {
-      // gather child data
       childData.name = childName.value;
       childData.gender = childGender.value;
       childData.birth = childBirth.value;
       childData.school = childSchool.value;
       childData.grade = childGrade.value;
-      const fullData = { child: childData, responses: responses };
-      localStorage.setItem('cbrsFullData', JSON.stringify(fullData));
+      localStorage.setItem('cbrsFullData', JSON.stringify({ child: childData, responses: responses }));
     }
 
-    // ---------- Helpers for pending ----------
-    function getPendingQuestions() {
+    // ---------- Child data validation ----------
+    function isChildDataComplete() {
+      return childName.value.trim() !== '' &&
+             childGender.value !== '' &&
+             childBirth.value !== '' &&
+             childSchool.value.trim() !== '' &&
+             childGrade.value.trim() !== '';
+    }
+
+    // ---------- Pending helpers ----------
+    function getPendingIndices() {
       const pending = [];
-      questions.forEach((q, index) => {
+      questions.forEach((q, idx) => {
         const val = responses[q.id];
         if (val === undefined || val === null) {
-          pending.push(index + 1);
+          pending.push(idx);
         }
       });
       return pending;
     }
 
-    function hasPendingQuestions() {
-      return getPendingQuestions().length > 0;
-    }
-
-    function goToFirstPending() {
-      const pending = getPendingQuestions();
-      if (pending.length > 0) {
-        currentIndex = pending[0] - 1;
-        renderQuestion();
-        return true;
-      }
-      return false;
-    }
-
     // ---------- Render ----------
     function renderQuestion() {
-      const q = getCurrentQuestion();
+      const q = questions[currentIndex];
       qNumberEl.textContent = `السؤال ${currentIndex+1}`;
       qSectionEl.textContent = `(${q.section})`;
       qTextEl.textContent = q.text;
 
+      // Show review badge if in review mode
+      if (reviewMode) {
+        reviewBadge.classList.remove('hidden');
+      } else {
+        reviewBadge.classList.add('hidden');
+      }
+
+      // Generate options
       let html = '';
       const labels = ['كثير جداً', 'كثير', 'قليل', 'نادر', 'نادر جداً', 'لا يحدث مطلقاً'];
-      // Options 1-6
       for (let i = 1; i <= 6; i++) {
         const checked = (responses[q.id] === i) ? 'checked' : '';
         html += `
@@ -701,7 +674,6 @@
           </div>
         `;
       }
-      // Option 7: Defer
       const isDeferred = (responses[q.id] === null);
       html += `
         <div class="option-item">
@@ -711,31 +683,25 @@
       `;
       optionsContainer.innerHTML = html;
 
-      // attach change event to save
+      // Attach change events
       const radios = optionsContainer.querySelectorAll('input[type="radio"]');
       radios.forEach(radio => {
-        radio.addEventListener('change', function(e) {
+        radio.addEventListener('change', function() {
           const val = this.value;
           if (val === 'defer') {
-            responses[q.id] = null; // deferred
+            responses[q.id] = null;
           } else {
             responses[q.id] = parseInt(val, 10);
           }
           saveToStorage();
           updateProgress();
-          // Hide pending message when user answers
-          pendingMessage.classList.add('hidden');
+          hideMessage();
         });
       });
 
       updateProgress();
       updateNavButtons();
-      // Hide any previous pending message on navigation
-      pendingMessage.classList.add('hidden');
-    }
-
-    function getCurrentQuestion() {
-      return questions[currentIndex];
+      hideMessage();
     }
 
     function updateProgress() {
@@ -746,11 +712,15 @@
     }
 
     function updateNavButtons() {
-      prevBtn.disabled = (currentIndex === 0);
-      if (currentIndex === totalQuestions - 1) {
+      prevBtn.disabled = (currentIndex === 0 && !reviewMode) || (reviewMode && pendingQueue.length === 0);
+      if (currentIndex === totalQuestions - 1 && !reviewMode) {
         nextBtn.textContent = '🏁 إنهاء';
         nextBtn.classList.add('btn-success');
         nextBtn.classList.remove('btn-primary');
+      } else if (reviewMode) {
+        nextBtn.textContent = 'التالي ⟫';
+        nextBtn.classList.remove('btn-success');
+        nextBtn.classList.add('btn-primary');
       } else {
         nextBtn.textContent = 'التالي ⟫';
         nextBtn.classList.remove('btn-success');
@@ -758,7 +728,30 @@
       }
     }
 
+    function showMessage(text, list = null) {
+      messageBox.classList.add('show');
+      messageText.textContent = text;
+      if (list && list.length > 0) {
+        messageList.textContent = list.join('، ');
+        messageList.style.display = 'inline-block';
+      } else {
+        messageList.style.display = 'none';
+      }
+    }
+    function hideMessage() {
+      messageBox.classList.remove('show');
+    }
+
+    // ---------- Navigation ----------
     function goToPrev() {
+      if (reviewMode) {
+        const idx = pendingQueue.indexOf(currentIndex);
+        if (idx > 0) {
+          currentIndex = pendingQueue[idx - 1];
+          renderQuestion();
+        }
+        return;
+      }
       if (currentIndex > 0) {
         currentIndex--;
         renderQuestion();
@@ -766,38 +759,67 @@
     }
 
     function goToNext() {
-      // If last question, validate before showing results
-      if (currentIndex === totalQuestions - 1) {
-        validateAndShowResults();
+      // 1. Check child data completeness
+      if (!isChildDataComplete()) {
+        showMessage('⚠️ يرجى إكمال جميع بيانات الطفل (الاسم، النوع، تاريخ الميلاد، المدرسة، الصف) قبل المتابعة.');
         return;
       }
-      if (currentIndex < totalQuestions - 1) {
+
+      const q = questions[currentIndex];
+      const currentVal = responses[q.id];
+
+      // 2. Check if current question has an answer
+      if (currentVal === undefined) {
+        showMessage('⚠️ يرجى اختيار إجابة أو تأجيل للسؤال الحالي.');
+        return;
+      }
+
+      hideMessage();
+
+      // 3. Handle review mode
+      if (reviewMode) {
+        // Move to next pending in queue
+        const idx = pendingQueue.indexOf(currentIndex);
+        if (idx !== -1 && idx < pendingQueue.length - 1) {
+          currentIndex = pendingQueue[idx + 1];
+          renderQuestion();
+        } else {
+          // All pending answered, show results
+          showResults();
+        }
+        return;
+      }
+
+      // 4. Normal mode
+      if (currentIndex === totalQuestions - 1) {
+        // Last question -> check for pending
+        const pending = getPendingIndices();
+        if (pending.length === 0) {
+          // All answered, show results
+          showResults();
+        } else {
+          // Enter review mode
+          reviewMode = true;
+          pendingQueue = pending;
+          currentIndex = pendingQueue[0];
+          renderQuestion();
+          showMessage(`⏳ هناك ${pending.length} سؤال(أسئلة) مؤجلة. يرجى الإجابة عليها الآن:`, pending.map(i => i+1));
+        }
+      } else {
+        // Move to next question
         currentIndex++;
         renderQuestion();
       }
-    }
-
-    // ---------- Validation before results ----------
-    function validateAndShowResults() {
-      const pending = getPendingQuestions();
-      if (pending.length > 0) {
-        // Show error message
-        pendingMessage.classList.remove('hidden');
-        pendingText.textContent = `لا يمكن إنهاء الاختبار. هناك ${pending.length} سؤال(أسئلة) مؤجلة أو غير مجاب عنها:`;
-        pendingList.textContent = pending.join('، ');
-        // Go to first pending
-        goToFirstPending();
-        return;
-      }
-      // All answered, show results
-      showResults();
     }
 
     // ---------- Results ----------
     function showResults() {
       questionArea.style.display = 'none';
       resultsArea.classList.add('active');
-      pendingMessage.classList.add('hidden');
+      reviewMode = false;
+      pendingQueue = [];
+      reviewBadge.classList.add('hidden');
+      hideMessage();
       renderResults();
     }
 
@@ -818,39 +840,29 @@
       });
 
       let html = '';
-      let grandTotal = 0;
-      let grandCount = 0;
-
+      let grandTotal = 0, grandCount = 0;
       sections.forEach(sec => {
         const data = sectionMap[sec];
         const avg = data.count > 0 ? (data.sum / data.count) : 0;
         const avgRounded = avg.toFixed(2);
         grandTotal += data.sum;
         grandCount += data.count;
-
         const barPercent = (avg / 6) * 100;
         let barColor = '#22c55e';
         if (avg < 2.5) barColor = '#ef4444';
         else if (avg < 4) barColor = '#f59e0b';
-
         html += `
           <div class="result-card">
             <div>
               <div class="section-name">${sec}</div>
               <div style="font-size:13px;color:#64748b;">عدد الإجابات: ${data.count}</div>
             </div>
-            <div class="avg-score" style="background:${barColor}20; color:${barColor};">
-              ${avgRounded}
-            </div>
-            <div class="result-bar">
-              <div class="bar-fill" style="width:${barPercent}%; background:${barColor};"></div>
-            </div>
+            <div class="avg-score" style="background:${barColor}20; color:${barColor};">${avgRounded}</div>
+            <div class="result-bar"><div class="bar-fill" style="width:${barPercent}%; background:${barColor};"></div></div>
           </div>
         `;
       });
-
       resultsContainer.innerHTML = html;
-
       const overallAvg = grandCount > 0 ? (grandTotal / grandCount) : 0;
       totalScoreEl.textContent = `المعدل العام: ${overallAvg.toFixed(2)} من 6 (كلما قل الرقم، زادت المشكلة)`;
     }
@@ -858,12 +870,16 @@
     function hideResults() {
       resultsArea.classList.remove('active');
       questionArea.style.display = 'block';
+      reviewMode = false;
+      pendingQueue = [];
+      reviewBadge.classList.add('hidden');
+      // Return to first unanswered or last viewed?
+      currentIndex = 0;
       renderQuestion();
     }
 
-    // ---------- Export to Excel ----------
+    // ---------- Export Excel ----------
     function exportToExcel() {
-      // Gather child data
       const name = childName.value || 'غير محدد';
       const gender = childGender.value || 'غير محدد';
       const birth = childBirth.value || 'غير محدد';
@@ -871,9 +887,7 @@
       const school = childSchool.value || 'غير محدد';
       const grade = childGrade.value || 'غير محدد';
 
-      // Build data rows
       const rows = [];
-      // Header: Child Info
       rows.push(['بيانات الطفل']);
       rows.push(['الاسم', name]);
       rows.push(['النوع', gender]);
@@ -881,11 +895,8 @@
       rows.push(['العمر الزمني', age]);
       rows.push(['المدرسة', school]);
       rows.push(['الصف', grade]);
-      rows.push([]); // empty row
-
-      // Questions header
-      rows.push(['رقم السؤال', 'القسم', 'نص السؤال', 'التقييم (1-6 أو تأجيل)']);
-
+      rows.push([]);
+      rows.push(['رقم السؤال', 'القسم', 'نص السؤال', 'التقييم']);
       questions.forEach((q, idx) => {
         const val = responses[q.id];
         let displayVal = 'غير مجاب';
@@ -894,28 +905,17 @@
         rows.push([idx+1, q.section, q.text, displayVal]);
       });
 
-      // Create workbook
       const wb = XLSX.utils.book_new();
       const ws = XLSX.utils.aoa_to_sheet(rows);
       XLSX.utils.book_append_sheet(wb, ws, 'تقييم الطفل');
-      
-      // Auto column width (simple)
-      ws['!cols'] = [
-        { wch: 15 }, // رقم
-        { wch: 15 }, // قسم
-        { wch: 50 }, // نص
-        { wch: 20 }  // تقييم
-      ];
-
-      // Generate file
-      const fileName = `تقييم_الطفل_${new Date().toISOString().slice(0,10)}.xlsx`;
-      XLSX.writeFile(wb, fileName);
+      ws['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 50 }, { wch: 20 }];
+      XLSX.writeFile(wb, `تقييم_الطفل_${new Date().toISOString().slice(0,10)}.xlsx`);
     }
 
     // ---------- Reset ----------
     function resetAll() {
       if (confirm('هل أنت متأكد من مسح جميع الإجابات وبيانات الطفل؟')) {
-        questions.forEach(q => { responses[q.id] = undefined; });
+        resetResponses();
         childData = { name: '', gender: '', birth: '', school: '', grade: '' };
         childName.value = '';
         childGender.value = '';
@@ -925,41 +925,31 @@
         updateAgeDisplay();
         saveToStorage();
         currentIndex = 0;
-        if (resultsArea.classList.contains('active')) {
-          hideResults();
-        } else {
-          renderQuestion();
-        }
+        reviewMode = false;
+        pendingQueue = [];
+        reviewBadge.classList.add('hidden');
+        if (resultsArea.classList.contains('active')) hideResults();
+        else renderQuestion();
         updateProgress();
-        pendingMessage.classList.add('hidden');
+        hideMessage();
       }
     }
 
     // ---------- Init ----------
     function init() {
       loadFromStorage();
-      // Update age on birth change
-      childBirth.addEventListener('change', function() {
-        updateAgeDisplay();
-        saveToStorage();
-      });
-      // Save child data on change
+      childBirth.addEventListener('change', () => { updateAgeDisplay(); saveToStorage(); });
       [childName, childGender, childSchool, childGrade].forEach(el => {
         el.addEventListener('change', saveToStorage);
         el.addEventListener('input', saveToStorage);
       });
 
-      // Ensure all keys exist
-      questions.forEach(q => {
-        if (!(q.id in responses)) responses[q.id] = undefined;
-      });
+      questions.forEach(q => { if (!(q.id in responses)) responses[q.id] = undefined; });
       saveToStorage();
 
-      // If all questions already answered, we start at 0 anyway.
       currentIndex = 0;
       renderQuestion();
 
-      // Event listeners
       prevBtn.addEventListener('click', goToPrev);
       nextBtn.addEventListener('click', goToNext);
       resetBtn.addEventListener('click', resetAll);
