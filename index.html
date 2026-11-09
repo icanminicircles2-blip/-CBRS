@@ -917,7 +917,7 @@
       const ws = XLSX.utils.aoa_to_sheet(rows);
       XLSX.utils.book_append_sheet(wb, ws, 'تقييم الطفل');
       ws['!cols'] = [{ wch: 15 }, { wch: 15 }, { wch: 50 }, { wch: 20 }];
-      XLSX.writeFile(wb, `تقييم_الطفل_${new Date().toISOString().slice(0,10)}.xlsx`);
+   XLSX.writeFile(wb, `${name.trim().replace(/[\\/:*?"<>|]/g, "_") || "غير_محدد"}_CBRS.xlsx`);
     }
 
     // ---------- Reset ----------
